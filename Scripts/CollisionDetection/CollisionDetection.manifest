@@ -1,0 +1,10 @@
+{
+	"autodeskProduct":	"Fusion360",
+	"type":	"script",
+	"author":	"An Pirlot",
+	"description":	{
+		"":	"Runs a number of simulations automatically "
+	},
+	"supportedOS":	"windows|mac",
+	"editEnabled":	true
+}
