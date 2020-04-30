@@ -1,6 +1,6 @@
 #Description-Update any text on sketches named "Version Number" with the latest document version and part number.
 
-import adsk.core, adsk.fusion, adsk.cam, traceback
+import adsk.core, adsk.fusion, adsk.cam, traceback, datetime
 
 ui = None
 handlers = []
@@ -16,7 +16,7 @@ def updateComponent(component, version):
                 # Else update text to version number + part number
                 if component.partNumber != '(Unsaved)':
                     currentPartnumber = component.partNumber
-                text.text = ("V%s %s" % (version, currentPartnumber))
+                text.text = ("%s/%s V%s %s" % (datetime.date.today().day, datetime.date.today().month, version, currentPartnumber))
 
 
 class MyDocumentSavingHandler(adsk.core.DocumentEventHandler):
