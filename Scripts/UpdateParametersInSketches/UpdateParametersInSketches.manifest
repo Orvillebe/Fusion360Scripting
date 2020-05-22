@@ -1,0 +1,10 @@
+{
+	"autodeskProduct":	"Fusion360",
+	"type":	"script",
+	"author":	"An Pirlot",
+	"description":	{
+		"":	"Update text in sketches according to the name of the sketch and the corresponding user parameter with the same name"
+	},
+	"supportedOS":	"windows|mac",
+	"editEnabled":	true
+}
