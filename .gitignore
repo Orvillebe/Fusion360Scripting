@@ -1,1 +1,6 @@
 .vscode
+fusion.py
+core.py
+cam.py
+*.code-workspace
+adsk/*
