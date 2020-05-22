@@ -1,0 +1,13 @@
+{
+	"autodeskProduct":	"Fusion360",
+	"type":	"addin",
+	"id":	"7c2f5de1-d0c9-4605-97a4-3913ad687e67",
+	"author":	"An Pirlot",
+	"description":	{
+		"":	"Update text in sketches according to a parameter with the same name. Example: the text in a sketch with name \"Height\" will be updated to \"Height:Value\" with the value from user parameter with name \"Height\".\t\t\t"
+	},
+	"version":	"",
+	"runOnStartup":	false,
+	"supportedOS":	"windows|mac",
+	"editEnabled":	true
+}
