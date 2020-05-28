@@ -1,7 +1,11 @@
 #Author-An Pirlot
 #Description-Update text in sketches according to a parameter with the same name. Example: the text in a sketch with name "Height" will be updated to "Height:Value" with the value from user parameter with name "Height".\t\t\t
 
-import adsk.core, adsk.fusion, adsk.cam, traceback, datetime
+import adsk.core
+import adsk.fusion
+import adsk.cam
+import traceback
+import datetime
 
 ui = None
 handlers = []
@@ -10,13 +14,15 @@ def updateTextSketchesInComponent(component):
     for sketch in component.sketches:
         # Check if there is a user parameter with the same name
         design = component.parentDesign
+        unitsManager = design.unitsManager
         userParameters = design.userParameters
         parameter = userParameters.itemByName(sketch.name)
         # If there is replace the text in the sketch by the name and value of the parameter
         if parameter is not None:
             value = parameter.value
             for text in sketch.sketchTexts:
-                text.text = ("%s:%g%s" % (parameter.name, parameter.value, parameter.unit))
+                text.text = ("%s:%s%s" % (parameter.name, unitsManager.convert(parameter.value, unitsManager.internalUnits, parameter.unit), parameter.unit))
+
 
 
 class MyDocumentSavingHandler(adsk.core.DocumentEventHandler):
