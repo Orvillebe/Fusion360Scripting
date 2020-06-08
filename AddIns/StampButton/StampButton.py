@@ -51,7 +51,6 @@ class StampCommandCreatedHandler(adsk.core.CommandCreatedEventHandler):
         ui  = app.userInterface
 
         #select face of a component
-        ui.messageBox("Please select a planar face")
         selectedFace = ui.selectEntity("Select face", "PlanarFaces").entity
 
         #create sketch and text to stamp
