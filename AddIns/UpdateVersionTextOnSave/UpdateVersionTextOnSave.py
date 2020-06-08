@@ -44,7 +44,8 @@ class MyDocumentSavingHandler(adsk.core.DocumentEventHandler):
                version = design.parentDocument.dataFile.versionNumber+1
 
             for component in design.allComponents:
-                updateComponent(component, version)
+                if component.parentDesign == design:
+                    updateComponent(component, version)
                 
         except Exception as e:
             message = 'Failed:\n{}'.format(traceback.format_exc())
