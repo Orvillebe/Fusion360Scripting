@@ -1,0 +1,13 @@
+{
+	"autodeskProduct":	"Fusion360",
+	"type":	"addin",
+	"id":	"525cf3ce-74cb-40f4-9de5-a83070d8dddb",
+	"author":	"",
+	"description":	{
+		"":	"addin that adds a button to which an event can be linked"
+	},
+	"version":	"",
+	"runOnStartup":	true,
+	"supportedOS":	"windows|mac",
+	"editEnabled":	true
+}
