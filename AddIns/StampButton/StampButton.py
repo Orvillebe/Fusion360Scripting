@@ -31,9 +31,6 @@ class StampCommandCreatedHandler(adsk.core.CommandCreatedEventHandler):
         text inside the sketch the same as the string provided.
         return the sketchtext that was created.
         '''
-        app = adsk.core.Application.get()
-        ui  = app.userInterface
-
         #create sketch on face in component
         parentComponent = planarFace.body.parentComponent
         stampSketch = parentComponent.sketches.add(planarFace)
