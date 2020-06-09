@@ -109,7 +109,6 @@ def stop(context):
     try:
         app = adsk.core.Application.get()
         ui  = app.userInterface
-        ui.messageBox('Stop addin')
 
         #clean up UI
         command = ui.commandDefinitions.itemById('stampButton')
