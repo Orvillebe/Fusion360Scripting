@@ -14,9 +14,18 @@ class StampCommandCreatedHandler(adsk.core.CommandCreatedEventHandler):
         try:
             app = adsk.core.Application.get()
             ui  = app.userInterface
+            command = args.command
+            inputs = command.commandInputs
+
+            onExecute = StampCommandexecuteHandler()
+            command.execute.add(onExecute)
+            _handlers.append(onExecute)
+
+            selectionInput = inputs.addSelectionInput("selectedFace", "Select where to stamp", "Select an planar face")
+            selectionInput.setSelectionLimits(1,1)
+            selectionInput.addSelectionFilter("PlanarFaces")
             stamp = 'Version Number'
 
-            self.stampOnPlanarFace(stamp)
                 
         except Exception as e:
             message = 'Failed:\n{}'.format(traceback.format_exc())
@@ -24,6 +33,29 @@ class StampCommandCreatedHandler(adsk.core.CommandCreatedEventHandler):
             if ui:
                 ui.messageBox(message)
 
+class StampCommandexecuteHandler(adsk.core.CommandEventHandler):
+    def __init__(self):
+        super().__init__()
+
+
+    def notify(self, args):
+        try:
+            app = adsk.core.Application.get()
+            ui  = app.userInterface
+
+            command = args.command
+            inputs = command.commandInputs
+
+            selectedFace = inputs.itemById("selectedFace").selection(0).entity
+            stamp = 'Version Number'
+            self.stampOnPlanarFace(selectedFace, stamp)
+
+                
+        except Exception as e:
+            message = 'Failed:\n{}'.format(traceback.format_exc())
+
+            if ui:
+                ui.messageBox(message)
 
     def writeOnPlanarFace(self, planarFace, textToWrite):
         '''
@@ -43,15 +75,15 @@ class StampCommandCreatedHandler(adsk.core.CommandCreatedEventHandler):
         return stampText
 
 
-    def stampOnPlanarFace(self, stamp):
+    def stampOnPlanarFace(self, selectedFace, stamp):
         '''
         when given a string will stamp that string 0.04 mm deep into a by the user selected planar face.
         '''
-        app = adsk.core.Application.get()
-        ui  = app.userInterface
+        #app = adsk.core.Application.get()
+        #ui  = app.userInterface
 
         #select face of a component
-        selectedFace = ui.selectEntity("Select face", "PlanarFaces").entity
+        #selectedFace = ui.selectEntity("Select face", "PlanarFaces").entity
 
         #create sketch and text to stamp
         stamp = self.writeOnPlanarFace(selectedFace, stamp)
@@ -87,6 +119,7 @@ def connectStampCommandButton(stampButtonDefinition):
     onCreate = StampCommandCreatedHandler()
     stampButtonDefinition.commandCreated.add(onCreate)
     _handlers.append(onCreate)
+
 
 def run(context):
 
