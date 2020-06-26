@@ -16,15 +16,26 @@ class StampCommandCreatedHandler(adsk.core.CommandCreatedEventHandler):
             ui  = app.userInterface
             command = args.command
             inputs = command.commandInputs
+            design = adsk.fusion.Design.cast(app.activeProduct)
+            if not design:
+                ui.messageBox('This is not supported in the current workspace, please change to Design and try again.')
+                return
 
             onExecute = StampCommandexecuteHandler()
             command.execute.add(onExecute)
             _handlers.append(onExecute)
 
-            selectionInput = inputs.addSelectionInput("selectedFace", "Select where to stamp", "Select an planar face")
+            #Selection of face
+            selectionInput = inputs.addSelectionInput("selectedFace", "Face", "Select an planar face")
             selectionInput.setSelectionLimits(1,1)
             selectionInput.addSelectionFilter("PlanarFaces")
-            stamp = 'Version Number'
+            
+            #Dropdown of parameters
+            dropDownInput = inputs.addDropDownCommandInput("selectedParameter", "Parameter", adsk.core.DropDownStyles.TextListDropDownStyle)
+            dropDownItems = dropDownInput.listItems
+            dropDownItems.add("Version Number", True)
+            for parameter in design.userParameters:
+                dropDownItems.add(parameter.name, False)
 
                 
         except Exception as e:
@@ -47,7 +58,7 @@ class StampCommandexecuteHandler(adsk.core.CommandEventHandler):
             inputs = command.commandInputs
 
             selectedFace = inputs.itemById("selectedFace").selection(0).entity
-            stamp = 'Version Number'
+            stamp = inputs.itemById("selectedParameter").selectedItem.name
             self.stampOnPlanarFace(selectedFace, stamp)
 
                 
