@@ -24,4 +24,5 @@ like this:
 
 FUTURE
 
-The UpdateTextSketchesOnSave and UpdateVersionTextOnSave could maybe best be refactored into 1 addin maybe even including the stamp addin
+-The UpdateTextSketchesOnSave and UpdateVersionTextOnSave could maybe best be refactored into 1 addin maybe even including the stamp addin
+-Change hardcoded depth of stamp to user input with a default value for fast use
