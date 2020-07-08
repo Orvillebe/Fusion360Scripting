@@ -1,11 +1,14 @@
 #Author-An Pirlot
 #Description-Runs a number of simulations automatically 
 
+import adsk
 from adsk import core
-from adsk.fusion import Component, Design, BRepBody, Occurrences, DesignTypes, InterferenceResult
+from adsk import fusion
+from adsk.fusion import Component, Design, BRepBody, Occurrences, DesignTypes, InterferenceResult, Timeline
 import traceback
 import csv
 import os
+import time
 from typing import List
 
 
@@ -36,21 +39,36 @@ def run(context):
         filepath = os.path.join(home_folder, "Desktop", "CollisionDetection.csv")
 
         rootComp = design.rootComponent
-        results = checkAssemblyForInterference(rootComp)
-        logInterferenceData(filepath, results)
+        collisionParameter = "collisionParameter"
+        if not design.allParameters.itemByName(collisionParameter):
+            results = checkAssemblyForInterference(rootComp)
+            logInterferenceData(filepath, results, 'N/A')
+        else:
+            originalValue = design.allParameters.itemByName(collisionParameter).expression
+            detectionMin = -80
+            detectionMax = -60
+            detectionStep = 50
+            for i in range (detectionMin, detectionMax, detectionStep):
+                value = design.allParameters.itemByName(collisionParameter)
+                design.allParameters.itemByName(collisionParameter).expression = str(i)
+                results = checkAssemblyForInterference(rootComp)
+                logInterferenceData(filepath, results, i)
+            designType = design.designType
+            parameters = design.allParameters
+            design.allParameters.itemByName(collisionParameter).expression = originalValue
     except:
         if ui:
             ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
 
 
-def logInterferenceData(filepath, interferenceResults):  # type: (str, List[InterferenceResult]) -> None
+def logInterferenceData(filepath, interferenceResults, parameterValue):  # type: (str, List[InterferenceResult]) -> None
     '''
     Writes the results of an interferencesimulation to a specified csv file
     '''
-    writeToFile(filepath, ['TEST', 'STATUS', 'RESULT'])
+    writeToFile(filepath, ['TEST','PARAMETER' , 'STATUS', 'RESULT'])
 
     if not len(interferenceResults):
-        writeToFile(filepath, ['Interference', 'OK', 'no interference'])
+        writeToFile(filepath, ['Interference',parameterValue , 'OK', 'no interference'])
     else:
         rowResult = 'interference between:'
         for result in interferenceResults:
@@ -84,6 +102,7 @@ def checkAssemblyForInterference(rootComponent):  # type: (Component) -> List[In
 
     # Undo 'Do not capture design history' to get the design history back
     ui.commandDefinitions.itemById('UndoCommand').execute()
+    adsk.doEvents()
     return results
 
 
