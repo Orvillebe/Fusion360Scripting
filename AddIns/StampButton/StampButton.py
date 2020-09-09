@@ -29,6 +29,10 @@ class StampCommandCreatedHandler(adsk.core.CommandCreatedEventHandler):
             selectionInput = inputs.addSelectionInput("selectedFace", "Face", "Select an planar face")
             selectionInput.setSelectionLimits(1,1)
             selectionInput.addSelectionFilter("PlanarFaces")
+
+            #Select size and depth
+            DepthValueInput = inputs.addValueInput("stampDepth", "stampDepth", "mm", adsk.core.ValueInput.createByReal(0.04))
+            HeightValueInput = inputs.addValueInput("stampHeight", "stampHeight", "mm", adsk.core.ValueInput.createByReal(0.6))
             
             #Dropdown of parameters
             dropDownInput = inputs.addDropDownCommandInput("selectedParameter", "Parameter", adsk.core.DropDownStyles.TextListDropDownStyle)
@@ -53,13 +57,19 @@ class StampCommandexecuteHandler(adsk.core.CommandEventHandler):
         try:
             app = adsk.core.Application.get()
             ui  = app.userInterface
+            design = adsk.fusion.Design.cast(app.activeProduct)
+            unitsManager = design.unitsManager
 
             command = args.command
             inputs = command.commandInputs
 
+            #load parameters provided by user via userinput
             selectedFace = inputs.itemById("selectedFace").selection(0).entity
             stamp = inputs.itemById("selectedParameter").selectedItem.name
-            self.stampOnPlanarFace(selectedFace, stamp)
+            stampDepth = unitsManager.evaluateExpression(inputs.itemById("stampDepth").expression)
+            stampHeight = unitsManager.evaluateExpression(inputs.itemById("stampHeight").expression)
+            #do the actual stamp
+            self.stampOnPlanarFace(selectedFace, stamp, stampDepth, stampHeight)
 
                 
         except Exception as e:
@@ -68,7 +78,7 @@ class StampCommandexecuteHandler(adsk.core.CommandEventHandler):
             if ui:
                 ui.messageBox(message)
 
-    def writeOnPlanarFace(self, planarFace, textToWrite):
+    def writeOnPlanarFace(self, planarFace, textToWrite, stampHeight):
         '''
         when given a planar face and a string, creates a sketch into the parentcomponent of the face with name and 
         text inside the sketch the same as the string provided.
@@ -79,30 +89,25 @@ class StampCommandexecuteHandler(adsk.core.CommandEventHandler):
         stampSketch = parentComponent.sketches.add(planarFace)
         point = stampSketch.modelToSketchSpace(planarFace.pointOnFace)
         stampText = stampSketch.sketchTexts.add(stampSketch.sketchTexts.createInput(textToWrite, 1.0, point ))
-        stampText.height = 0.6
+        stampText.height = stampHeight
         #rename sketch to have the same name as the text (for updating)
         stampSketch.name = textToWrite
 
         return stampText
 
 
-    def stampOnPlanarFace(self, selectedFace, stamp):
+    def stampOnPlanarFace(self, selectedFace, stamp, stampDepth, stampHeight):
         '''
         when given a string will stamp that string 0.04 mm deep into a by the user selected planar face.
         '''
-        #app = adsk.core.Application.get()
-        #ui  = app.userInterface
-
-        #select face of a component
-        #selectedFace = ui.selectEntity("Select face", "PlanarFaces").entity
 
         #create sketch and text to stamp
-        stamp = self.writeOnPlanarFace(selectedFace, stamp)
+        stamp = self.writeOnPlanarFace(selectedFace, stamp, stampHeight)
 
         #stamp the text
         extrudes = stamp.parentSketch.parentComponent.features.extrudeFeatures
         extrudeInput = extrudes.createInput(stamp, adsk.fusion.FeatureOperations.CutFeatureOperation)
-        distance = adsk.core.ValueInput.createByReal(-0.04)
+        distance = adsk.core.ValueInput.createByReal(-stampDepth)
         extrudeInput.setDistanceExtent(False, distance)
         extrudes.add(extrudeInput)
         
