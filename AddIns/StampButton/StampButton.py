@@ -1,9 +1,9 @@
 #Author-An Pirlot
 #Description-addin that adds a button/function to the toolbar that allows the user to stamp 'Version Number' into a face, which serves as input for https://github.com/Orvillebe/Fusion360Scripting/tree/master/AddIns/UpdateVersionTextOnSave
 import os
-import sys
-
-import adsk.core, adsk.fusion, traceback
+import adsk.core
+import adsk.fusion
+import traceback
 
 _handlers = []
 
@@ -123,7 +123,7 @@ def createStampCommandButton():
     
     #create button and command
     script_directory = os.path.dirname(__file__)
-    stampButtonDefinition =  ui.commandDefinitions.addButtonDefinition('stampButton', 'stamp', 'This will stamp a parameter of choice into a chosen face. This can also be used to stamp the version.', script_directory+'/resources')
+    stampButtonDefinition =  ui.commandDefinitions.addButtonDefinition('stampButton', 'stamp', 'This will stamp a parameter of choice into a chosen face. This can also be used to stamp the version.', f'{script_directory}/resources')
     addInsToolbarPanel = ui.allToolbarPanels.itemById('SolidScriptsAddinsPanel')
     stampButtonControl = addInsToolbarPanel.controls.addCommand(stampButtonDefinition, 'stampButtonControl')
     stampButtonControl.isPromotedByDefault = True
