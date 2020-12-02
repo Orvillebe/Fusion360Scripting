@@ -4,3 +4,5 @@ core.py
 cam.py
 *.code-workspace
 adsk/*
+.idea
+__pycache__
