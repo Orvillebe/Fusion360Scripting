@@ -9,18 +9,26 @@ import traceback
 ui = None
 handlers = []
 
-def updateComponent(component, version):
+def updateComponent(component: adsk.fusion.Component, version: int) -> None:
 
     for sketch in component.sketches:
         # Test if the name of the sketch starts with 'Version Number', there could be multiple Version Number (1/2/...) sketches
         if sketch.name.startswith('Version Number'):
             for text in sketch.sketchTexts:
                 currentPartnumber = ''
+                currentParentPartNumber = ''
                 # If the component does not have a partNumber yet (e.g. file has never been saved and component is root component) only text to version number only
                 # Else update text to version number + part number
                 if component.partNumber != '(Unsaved)':
-                    currentPartnumber = component.partNumber
-                text.text = ("V%s %s" % (version, currentPartnumber))
+                    currentRoot = component.parentDesign.rootComponent
+                    currentParentPartNumber = component.parentDesign.rootComponent.partNumber
+                    if not sameComponent(component, currentRoot):
+                        currentPartnumber = component.partNumber
+                text.text = ("V%s %s \n%s" % (version, currentParentPartNumber, currentPartnumber))
+
+
+def sameComponent (component1: adsk.fusion.Component, component2:adsk.fusion.Component) -> bool:
+    return component1.id == component2.id
 
 
 class MyDocumentSavingHandler(adsk.core.DocumentEventHandler):
