@@ -30,7 +30,7 @@ def update_parameter_sketch(sketch: adsk.fusion.Sketch) -> None:
     if parameter is not None:
         value = units_manager.convert(parameter.value, units_manager.internalUnits, parameter.unit)
         for text in sketch.sketchTexts:
-            text.text = ("%s:%s%s" % (parameter.name, value, parameter.unit))
+            text.text = f"{parameter.name}:{value}{parameter.unit}"
 
 
 def update_version_sketch(sketch: adsk.fusion.Sketch, version: int) -> None:
@@ -46,9 +46,9 @@ def update_version_sketch(sketch: adsk.fusion.Sketch, version: int) -> None:
             # If the component is the current component is the root of it's own design you do not need to update the
             # current_partNumber it would just result in the same thing twice e.g. V12 Parent1 Parent1 instead of V12
             # Parent1 Component1
-            if not component.id == current_root.id:
+            if component.id != current_root.id:
                 current_partNumber = component.partNumber
-        text.text = ("V%s %s \n%s" % (version, current_parent_partNumber, current_partNumber))
+        text.text = f"V{version} {current_parent_partNumber} \n{current_partNumber}"
 
 
 def update_component(component: adsk.fusion.Component, version: int) -> None:
@@ -90,7 +90,7 @@ class MyDocumentSavingHandler(adsk.core.DocumentEventHandler):
                     update_component(component, version)
 
         except Exception as e:
-            message = 'Failed:\n{}'.format(traceback.format_exc())
+            message = "Failed:\n{}".format(traceback.format_exc())
 
             if ui:
                 ui.messageBox(message)
@@ -108,7 +108,7 @@ def run(context):
 
     except:
         if ui:
-            ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
+            ui.messageBox("Failed:\n{}".format(traceback.format_exc()))
 
 
 def stop(context):
@@ -122,4 +122,4 @@ def stop(context):
 
     except:
         if ui:
-            ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
+            ui.messageBox("Failed:\n{}".format(traceback.format_exc()))
