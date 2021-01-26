@@ -7,7 +7,7 @@
 		"":	"Update text in sketches according to a parameter with the same name. Example: the text in a sketch with name \"Height\" will be updated to \"Height:Value\" with the value from user parameter with name \"Height\".\t\t\t"
 	},
 	"version":	"",
-	"runOnStartup":	false,
+	"runOnStartup":	true,
 	"supportedOS":	"windows|mac",
 	"editEnabled":	true
 }
