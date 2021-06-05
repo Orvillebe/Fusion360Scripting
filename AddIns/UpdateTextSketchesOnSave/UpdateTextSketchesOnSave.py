@@ -48,7 +48,10 @@ def update_version_sketch(sketch: adsk.fusion.Sketch, version: int) -> None:
             # Parent1 Component1
             if component.id != current_root.id:
                 current_partNumber = component.partNumber
-        text.text = f"V{version} {current_parent_partNumber} \n{current_partNumber}"
+        if sketch.name == 'Version Number Only':
+            text.text = f"V{version}"
+        else:
+            text.text = f"V{version} {current_parent_partNumber} \n{current_partNumber}"
 
 
 def update_component(component: adsk.fusion.Component, version: int) -> None:
