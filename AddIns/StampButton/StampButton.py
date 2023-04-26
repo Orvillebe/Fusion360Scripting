@@ -33,13 +33,14 @@ class StampCommandCreatedHandler(adsk.core.CommandCreatedEventHandler):
             selectionInput.addSelectionFilter("PlanarFaces")
 
             #Select size and depth
-            DepthValueInput = inputs.addValueInput("stampDepth", "stampDepth", "mm", adsk.core.ValueInput.createByReal(0.04))
-            HeightValueInput = inputs.addValueInput("stampHeight", "stampHeight", "mm", adsk.core.ValueInput.createByReal(0.6))
+            DepthValueInput = inputs.addValueInput("embossingDepth", "Depth", "mm", adsk.core.ValueInput.createByReal(0.04))
+            HeightValueInput = inputs.addValueInput("embossingHeight", "Height", "mm", adsk.core.ValueInput.createByReal(0.6))
             
             #Dropdown of parameters
-            dropDownInput = inputs.addDropDownCommandInput("selectedParameter", "Parameter", adsk.core.DropDownStyles.TextListDropDownStyle)
+            dropDownInput = inputs.addDropDownCommandInput("selectedParameter", "Format", adsk.core.DropDownStyles.TextListDropDownStyle)
             dropDownItems = dropDownInput.listItems
             dropDownItems.add("Version Number", True)
+            dropDownItems.add("Extended Version Number", False)
             for parameter in design.userParameters:
                 dropDownItems.add(parameter.name, False)
 
@@ -68,10 +69,27 @@ class StampCommandexecuteHandler(adsk.core.CommandEventHandler):
             #load parameters provided by user via userinput
             selectedFace = inputs.itemById("selectedFace").selection(0).entity
             stamp = inputs.itemById("selectedParameter").selectedItem.name
-            stampDepth = unitsManager.evaluateExpression(inputs.itemById("stampDepth").expression)
-            stampHeight = unitsManager.evaluateExpression(inputs.itemById("stampHeight").expression)
+            stampDepth = unitsManager.evaluateExpression(inputs.itemById("embossingDepth").expression)
+            stampHeight = unitsManager.evaluateExpression(inputs.itemById("embossingHeight").expression)
+
+            doc = app.activeDocument
+
+            design = doc.design
+
+            # Set an initial value.
+            defaultStamp = f"v{design.parentDocument.dataFile.versionNumber}"
+
+            if stamp == "Extended Version Number":
+                current_partNumber = ''
+                current_parent_partNumber = ''
+                # There doesn't seem to be a clear place to get the document name without the version appeneded 
+                # so we'll just strip it.
+                cleanedName = doc.name.replace(f" v{design.parentDocument.dataFile.versionNumber}",'')
+                defaultStamp = f"v{design.parentDocument.dataFile.versionNumber} {cleanedName}"
+
+           
             #do the actual stamp
-            self.stampOnPlanarFace(selectedFace, stamp, stampDepth, stampHeight)
+            self.stampOnPlanarFace(selectedFace, stamp, defaultStamp, stampDepth, stampHeight)
 
                 
         except Exception as e:
@@ -80,7 +98,7 @@ class StampCommandexecuteHandler(adsk.core.CommandEventHandler):
             if ui:
                 ui.messageBox(message)
 
-    def writeOnPlanarFace(self, planarFace, textToWrite, stampHeight):
+    def writeOnPlanarFace(self, planarFace, parameterName, defaultValue, stampHeight):
         '''
         when given a planar face and a string, creates a sketch into the parentcomponent of the face with name and 
         text inside the sketch the same as the string provided.
@@ -90,21 +108,21 @@ class StampCommandexecuteHandler(adsk.core.CommandEventHandler):
         parentComponent = planarFace.body.parentComponent
         stampSketch = parentComponent.sketches.add(planarFace)
         point = stampSketch.modelToSketchSpace(planarFace.pointOnFace)
-        stampText = stampSketch.sketchTexts.add(stampSketch.sketchTexts.createInput(textToWrite, 1.0, point ))
-        stampText.height = stampHeight
         #rename sketch to have the same name as the text (for updating)
-        stampSketch.name = textToWrite
+        stampSketch.name = parameterName
+        stampText = stampSketch.sketchTexts.add(stampSketch.sketchTexts.createInput(defaultValue, 1.0, point ))
+        stampText.height = stampHeight
 
         return stampText
 
 
-    def stampOnPlanarFace(self, selectedFace, stamp, stampDepth, stampHeight):
+    def stampOnPlanarFace(self, selectedFace, parameterName, defaultValue, stampDepth, stampHeight):
         '''
         when given a string will stamp that string 0.04 mm deep into a by the user selected planar face.
         '''
 
         #create sketch and text to stamp
-        stamp = self.writeOnPlanarFace(selectedFace, stamp, stampHeight)
+        stamp = self.writeOnPlanarFace(selectedFace, parameterName, defaultValue, stampHeight)
 
         #stamp the text
         extrudes = stamp.parentSketch.parentComponent.features.extrudeFeatures
