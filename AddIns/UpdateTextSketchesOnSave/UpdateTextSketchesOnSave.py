@@ -59,7 +59,7 @@ def update_component(component: adsk.fusion.Component, version: int) -> None:
     for sketch in component.sketches:
         # Check if the name of the sketch starts with 'Version Number',
         # there could be multiple Version Number (1/2/...) sketches
-        if sketch.name.find('Version Number'):
+        if sketch.name.find("Version Number") != -1:
             update_version_sketch(sketch, version)
         else:
             # Check if there is a user parameter with the same name
