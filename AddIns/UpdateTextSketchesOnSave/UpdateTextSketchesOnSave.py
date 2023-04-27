@@ -48,14 +48,18 @@ def update_version_sketch(sketch: adsk.fusion.Sketch, version: int) -> None:
             # Parent1 Component1
             if component.id != current_root.id:
                 current_partNumber = component.partNumber
-        text.text = f"V{version} {current_parent_partNumber} \n{current_partNumber}"
+        if sketch.name == "Extended Version Number":
+            text.text = f"v{version} {current_parent_partNumber} \n{current_partNumber}"
+        else:
+            text.text = f"v{version}"
+
 
 
 def update_component(component: adsk.fusion.Component, version: int) -> None:
     for sketch in component.sketches:
         # Check if the name of the sketch starts with 'Version Number',
         # there could be multiple Version Number (1/2/...) sketches
-        if sketch.name.startswith('Version Number'):
+        if sketch.name.find("Version Number") != -1:
             update_version_sketch(sketch, version)
         else:
             # Check if there is a user parameter with the same name
