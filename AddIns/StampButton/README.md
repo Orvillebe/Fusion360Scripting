@@ -14,9 +14,10 @@ This is a simple Fusion 360 Addin design to create an embossed notice on a chose
  - Select the Object face to emboss.
  - Set/Update the Depth value for the embossment.
  - Set/Update the Height value for the lettering.
- - Select the Format
+ - Select the Parameter
    + Version Number displays just the version number ( v41 )
    + Extended Version Number displays the version number, followed by the file name and the part number if applicible. ( v41 Widget 17 )
+   + Any user parameters are displayed here as well.
 2. The Embossed value drops roughly centered on the chosen face with the current values for the formatted text. Open the sketch if you need to move it about
 3. Saving the file will update the formatted text automatically.
 

@@ -35,9 +35,9 @@ class StampCommandCreatedHandler(adsk.core.CommandCreatedEventHandler):
             #Select size and depth
             DepthValueInput = inputs.addValueInput("embossingDepth", "Depth", "mm", adsk.core.ValueInput.createByReal(0.04))
             HeightValueInput = inputs.addValueInput("embossingHeight", "Height", "mm", adsk.core.ValueInput.createByReal(0.6))
-            
+
             #Dropdown of parameters
-            dropDownInput = inputs.addDropDownCommandInput("selectedParameter", "Format", adsk.core.DropDownStyles.TextListDropDownStyle)
+            dropDownInput = inputs.addDropDownCommandInput("selectedParameter", "Parameter", adsk.core.DropDownStyles.TextListDropDownStyle)
             dropDownItems = dropDownInput.listItems
             dropDownItems.add("Version Number", True)
             dropDownItems.add("Extended Version Number", False)
@@ -77,16 +77,27 @@ class StampCommandexecuteHandler(adsk.core.CommandEventHandler):
             design = doc.design
 
             # Set an initial value.
-            defaultStamp = f"v{design.parentDocument.dataFile.versionNumber}"
 
-            if stamp == "Extended Version Number":
+            defaultStamp = f""
+
+            if stamp.find("Version Number") == -1:
+                units_manager = design.unitsManager
+                user_parameters = design.userParameters
+                parameter_name = stamp.split(" (", 1)[0]
+                parameter = user_parameters.itemByName(parameter_name)
+                # If there is replace the text in the sketch by the name and value of the parameter
+                if parameter is not None:
+                    value = units_manager.convert(parameter.value, units_manager.internalUnits, parameter.unit)
+                    defaultStamp = f"{parameter.name}"
+            elif stamp == "Extended Version Number":
                 current_partNumber = ''
                 current_parent_partNumber = ''
                 # There doesn't seem to be a clear place to get the document name without the version appeneded 
                 # so we'll just strip it.
                 cleanedName = doc.name.replace(f" v{design.parentDocument.dataFile.versionNumber}",'')
                 defaultStamp = f"v{design.parentDocument.dataFile.versionNumber} {cleanedName}"
-
+            else:
+                defaultStamp = f"v{design.parentDocument.dataFile.versionNumber}"
            
             #do the actual stamp
             self.stampOnPlanarFace(selectedFace, stamp, defaultStamp, stampDepth, stampHeight)
